@@ -17,10 +17,11 @@ local colors = {
 }
 
 local destAdd = ""
+local addListPos = {}--for add highlighting
 
 
 --on program start
-function sgS.check(list)
+local function sgS.check(list)
 
 	gpu.setBackground(colors["black"])
 	gpu.setForeground(colors["white"])
@@ -28,7 +29,7 @@ function sgS.check(list)
 	local val = 3
 	term.clear()
 
-	for k,v in pairs(list) do 
+	for k,v in pairs(list) do
 
 		if v == "not found" then
 			gpu.setForeground(colors["red"])
@@ -44,7 +45,7 @@ end
 
 
 --status display top right
-function sgS.status(targetAdd)
+local function sgS.status(targetAdd)
 
 	local x = 1
 	local y = 1
@@ -92,9 +93,11 @@ end
 
 
 --address list left top to bottom max 8
-function sgS.addList(gateList)
+local function sgS.addList(gateList, marked, page)
 
 	local addPos = 1
+	local pageFirst = 1
+	local pageLast = 8
 
 	gpu.setBackground(colors["white"])
 	gpu.setForeground(colors["black"])
@@ -104,10 +107,23 @@ function sgS.addList(gateList)
 	gpu.set(69, 2, "Address List")
 
 	for k,v in pairs(gateList) do
-		gpu.set(58, addPos+3, "Name: ".. gateList[k][1])--max name length 11
-		gpu.set(75, addPos+3, "Address: ".. gateList[k][2])
-		gpu.set(58, addPos+4, "Energy req: ".. math.floor(sg.energyToDial(gateList[k][2])*80) .." RF")
-		addPos = addPos + 3
+		if page > 1 then
+			pageFirst = pageFirst + pageLast * page
+			pageLast = pageLast * page
+		end
+		if marked == k then
+			gpu.setBackground(colors["black"])
+			gpu.setForeground(colors["white"])
+			gpu.fill(addListPos[k])
+		end
+		if k >= pageFirst and k <= pageLast then
+			addListPos[k] = {56,0 addPos+3,45,2}
+
+			gpu.set(58, addPos+3, "Name: ".. gateList[k][1])--max name length 11
+			gpu.set(75, addPos+3, "Address: ".. gateList[k][2])
+			gpu.set(58, addPos+4, "Energy req: ".. math.floor(sg.energyToDial(gateList[k][2])*80) .." RF")
+			addPos = addPos + 3
+		end
 	end
 
 

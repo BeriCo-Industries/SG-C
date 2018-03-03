@@ -8,9 +8,18 @@ local gpu = comp.gpu
 local run = true
 
 --addresses
-local gates = {
-{"Test-B", "71FB-X31-YM"},
-{"Test-R", "L1FJ-Y3O-EQ"}
+local gates = {{
+	{"G1", "VV95-R37-DB"},
+	{"G2", "TV94-Q38-3S"},
+	{"G3", "71FB-X31-YM"},
+	{"G4", "51FA-W32-O2"},
+	{"G5", "J1FH-33P-47"},
+	{"G6", "H1FG-23Q-VN"},
+	{"G7", "V1FN-93J-QH"},
+	{"G8", "T1FM-83K-GX"}
+},{
+	{"G9", "T1FM-83K-GF"}
+}
 }
 
 --event init
@@ -27,14 +36,22 @@ end
 gpu.setResolution(96,30)
 
 term.clear()
-sgS.addList(gates)--address list
+sgS.addList(gates,sgS.addMarked,sgS.page)--address list
+sgS.control()--control panel
 
 --main loop
 while run do
 
-	sgS.status(sgMech.targetAdd())--status updates
+	sgMech.markerChange()
+	sgS.status(gates)--status updates
 
-	os.sleep(0.25)
+
+	if sgMech.change then
+		sgS.addList(gates,sgS.addMarked,sgS.page)--address list
+		sgMech.change = false
+	end
+
+	os.sleep(0.125)
 
 	if sgMech.stop then
 		run = false

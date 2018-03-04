@@ -27,30 +27,6 @@ sgS.addMarked = {0,0}
 --control panel vars
 sgS.dialling = false
 
---on program start
-function sgS.check(list)
-
-	gpu.setBackground(colors["black"])
-	gpu.setForeground(colors["white"])
-
-	local val = 3
-	term.clear()
-
-	for k,v in pairs(list) do
-
-		if v == "not found" then
-			gpu.setForeground(colors["red"])
-		end
-		gpu.set(3,val+1, k ..": ".. v)
-		gpu.setForeground(colors["white"])
-	end
-
-	os.sleep(0.5)
-	term.clear()
-
-end
-
-
 --status display top right
 function sgS.status(gates)
 
@@ -61,17 +37,18 @@ function sgS.status(gates)
 	end
 
 	local localAdd = sg.localAddress()
-	local storedRF = math.floor(sg.energyAvailable()*80) .." kF"
+	local storedRF = math.floor(sg.energyAvailable()*80) .." RF"
 	local neededRF = "0 RF"
 	local gateState,chev,direction = sg.stargateState()
 	local irisState = sg.irisState()
 
 	local idcUser = "NONE"--TODO: change this just for testing
 
-	if gateState == "Dialling" and sgS.dialling == false and sgS.addMarked[3] ~= "done" then
-		sgS.addMarked = {0,0,"Incoming"}
+--[[
+	if gateState == "Dialling" or gateState == "Connected" or gateState == "Opening" and sgS.dialling == false then
+		sgS.addMarked = {0,0,gateState}
 		sgS.destAdd = sg.remoteAddress()
-	end
+	end]]
 
 	if sg.energyToDial(sgS.destAdd) then
 		neededRF = math.floor(sg.energyToDial(sgS.destAdd)*80) .." RF"
@@ -198,6 +175,12 @@ function sgS.control()
 	gpu.fill(1, 17, 52, 15, " ")--control panel
 
 	gpu.set(4, 18, "CONTROL PANEL")
+
+	if sgS.dialling then
+		gpu.set(4,20, "<Close>")--close button
+	else
+		gpu.set(4,20, "<Dial>")--dial button
+	end
 
 	--reset to default
 	gpu.setBackground(colors["black"])
